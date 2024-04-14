@@ -73,7 +73,7 @@ float tempHigh = 17.2;
 float humidLow = 60.0;
 
 // Water level, in mm^3
-float waterLevelHigh = 350.0;
+float waterLevelHigh = 500.0;
 float waterLevelLow = 150.0;
 
 // Tank level, in cm
@@ -82,7 +82,7 @@ float tankLevelLow = 10.0; // 10cm gap, calibrate depending on tank height
 // SENSOR STATE THRESHOLDS
 
 // Pump dispense buffer (in ms), calibrate this
-int pumpBuffer = 5000;
+int pumpBuffer = 500;
 
 // Atomizer buffer (in ms), calibrate this
 int atomizerBuffer = 10000;
@@ -237,10 +237,14 @@ void loop() {
           Serial.println("Pumping water from main tank.");
           toggleRelay(WATER_PUMP_PIN);
           delay(pumpBuffer);
+          toggleRelay(WATER_PUMP_PIN);
         }
 
         water_level = waterLevelTelemetry();
         if(water_level < waterLevelLow) goto fillAtomizerTank;
+
+        Serial.print(F("Water level : "));
+        Serial.println(water_level);
 
         float *foo = new float[2];
         float *tempHumidMeasurements = new float[2];
@@ -255,6 +259,16 @@ void loop() {
 
         temp_humid[0] = tempHumidMeasurements[0] / samples;
         temp_humid[1] = tempHumidMeasurements[1] / samples;
+
+        Serial.print(F("Temperature: "));
+        Serial.print(temp_humid[0]);
+        Serial.print(F("°C"));
+
+        Serial.print(" | "); // Separator
+
+        Serial.print(F("Humidity: "));
+        Serial.print(temp_humid[1]);
+        Serial.println(F("%"));
 
         if(temp_humid[0] >= tempHigh){
           Serial.println("Temperature too high!");
